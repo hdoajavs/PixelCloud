@@ -3,39 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixelCloud — Админ-панель</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>Панель управления — Моды</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        .input-field {
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .input-field label {
+            font-size: 0.9rem;
+            color: var(--md-sys-color-outline, #aaa);
+        }
+        .input-field input, .input-field select, .input-field textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--md-sys-color-surface, #121212);
+            color: inherit;
+            border: 1px solid var(--md-sys-color-outline, #444);
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
-
-    <header class="top-app-bar">
+    <header class="header">
         <div class="logo">
-            <span class="material-symbols-outlined logo-icon">cloud_download</span>
-            <span class="logo-text" style="color: #fff;">PixelCloud Admin</span>
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            <h1>Панель администратора</h1>
         </div>
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div id="adminInfo" style="display: flex; align-items: center; gap: 6px; font-weight: 500;">
-                <span class="material-symbols-outlined">account_circle</span>
-                <span id="adminName">Загрузка...</span>
-            </div>
-            <button class="icon-btn" id="logoutBtn" title="Выйти" aria-label="Выйти">
-                <span class="material-symbols-outlined">logout</span>
+        <div class="user-profile">
+            <span id="adminName">Admin</span>
+            <button id="logoutBtn" class="btn-download" style="padding: 6px 12px; font-size: 0.8rem;">
+                <span class="material-symbols-outlined">logout</span> Выйти
             </button>
         </div>
     </header>
 
-    <main class="container" style="max-width: 800px; margin: 24px auto;">
-
-        <!-- Опубликовать мод -->
+    <main class="container" style="max-width: 800px; margin: 20px auto; padding: 0 16px;">
+        
+        <!-- Форма публикации мода -->
         <section class="admin-card" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
             <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
                 <span class="material-symbols-outlined">add_circle</span> Опубликовать мод
             </h2>
-            <form id="uploadForm" enctype="multipart/form-data">
+            <form id="uploadForm">
                 <div class="input-field">
                     <label for="title">Название мода</label>
                     <input type="text" id="title" name="title" placeholder="Например: Super Pack" required>
@@ -46,7 +60,7 @@
                 </div>
                 <div class="input-field">
                     <label for="platform">Платформа</label>
-                    <select id="platform" name="platform" style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);">
+                    <select id="platform" name="platform">
                         <option value="android">Android (.apk)</option>
                         <option value="windows">Windows (ПК) (.exe / .zip)</option>
                     </select>
@@ -57,123 +71,36 @@
                 </div>
                 <div class="input-field">
                     <label for="description">Описание</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Краткое описание мода..." required style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);"></textarea>
+                    <textarea id="description" name="description" rows="3" placeholder="Краткое описание мода..." required></textarea>
                 </div>
                 
-                <!-- Загрузка файлов (Основной + Дополнительный) -->
+                <!-- Поля ввода Telegram file_id -->
                 <div class="input-field">
-                    <label for="modFile">Основной файл (Мод / 64-бит)</label>
-                    <input type="file" id="modFile" name="modFile" style="margin-top: 6px;">
+                    <label for="mainFileId">Telegram file_id основного файла</label>
+                    <input type="text" id="mainFileId" name="mainFileId" placeholder="BQACAgIAAxkBAAI..." required>
                 </div>
-                <div class="input-field" style="margin-top: 12px;">
-                    <label for="extraFile">Доп. файл (Драйвер / 32-бит)</label>
-                    <input type="file" id="extraFile" name="extraFile" style="margin-top: 6px;">
+                <div class="input-field">
+                    <label for="extraFileId">Telegram file_id доп. файла (необязательно)</label>
+                    <input type="text" id="extraFileId" name="extraFileId" placeholder="BQACAgIAAxkBAAI...">
                 </div>
 
                 <button type="submit" class="btn-download" style="margin-top: 16px; width: 100%; justify-content: center;">
-                    <span class="material-symbols-outlined">upload</span> Опубликовать
+                    <span class="material-symbols-outlined">publish</span> Опубликовать
                 </button>
             </form>
         </section>
 
-        <!-- Создать администратора / модератора -->
-        <section class="admin-card" id="createAdminSection" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
-            <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                <span class="material-symbols-outlined">person_add</span> Создать аккаунт
-            </h2>
-            <form id="createAdminForm">
-                <div class="input-field">
-                    <label for="newUsername">Логин</label>
-                    <input type="text" id="newUsername" placeholder="Логин нового пользователя" required>
-                </div>
-                <div class="input-field">
-                    <label for="newPassword">Пароль</label>
-                    <input type="password" id="newPassword" placeholder="Пароль" required>
-                </div>
-                <div class="input-field">
-                    <label for="newRole">Ранг / Роль</label>
-                    <select id="newRole" style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);">
-                        <option value="admin">Администратор</option>
-                        <option value="moderator">Модератор</option>
-                        <option value="slave">Раб</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn-download" style="margin-top: 12px; width: 100%; justify-content: center;">
-                    <span class="material-symbols-outlined">verified_user</span> Создать аккаунт
-                </button>
-            </form>
-        </section>
-
-        <!-- Управление пользователями / админами -->
-        <section class="admin-card" id="usersListSection" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
-            <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                <span class="material-symbols-outlined">group</span> Список администраторов и персонала
-            </h2>
-            <div id="adminsList">Загрузка пользователей...</div>
-        </section>
-
-        <!-- Управление модами -->
-        <section class="admin-card" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
-            <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                <span class="material-symbols-outlined">inventory_2</span> Управление модами
-            </h2>
-            <div id="adminModsGrid">Загрузка модов...</div>
-        </section>
-
-        <!-- Логи действий -->
+        <!-- Список опубликованных модов -->
         <section class="admin-card" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h2 style="display: flex; align-items: center; gap: 8px; margin: 0;">
-                    <span class="material-symbols-outlined">history</span> История действий (Логи)
-                </h2>
-                <button id="clearLogsBtn" class="btn-text" style="color: var(--md-sys-color-error, #ffb4ab);">
-                    <span class="material-symbols-outlined">delete</span> Очистить
-                </button>
+            <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <span class="material-symbols-outlined">list</span> Опубликованные моды
+            </h2>
+            <div id="adminModsGrid">
+                <p style="color: var(--md-sys-color-outline);">Загрузка списка модов...</p>
             </div>
-            <ul id="logsList" style="list-style: none; padding: 0; margin: 0;"></ul>
         </section>
 
     </main>
-
-    <!-- Скрытое модальное окно редактирования -->
-    <div class="modal-overlay" id="editModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span class="material-symbols-outlined modal-icon">edit</span>
-                <h2>Редактировать мод</h2>
-            </div>
-            <form id="editForm">
-                <input type="hidden" id="editModId">
-                <div class="input-field">
-                    <label for="editTitle">Название</label>
-                    <input type="text" id="editTitle" required>
-                </div>
-                <div class="input-field">
-                    <label for="editAuthor">Автор</label>
-                    <input type="text" id="editAuthor" required>
-                </div>
-                <div class="input-field">
-                    <label for="editVersion">Версия</label>
-                    <input type="text" id="editVersion" required>
-                </div>
-                <div class="input-field">
-                    <label for="editPlatform">Платформа</label>
-                    <select id="editPlatform" style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);">
-                        <option value="android">Android</option>
-                        <option value="windows">Windows (ПК)</option>
-                    </select>
-                </div>
-                <div class="input-field">
-                    <label for="editDescription">Описание</label>
-                    <textarea id="editDescription" rows="3" required style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-text" id="closeEditBtn">Отмена</button>
-                    <button type="submit" class="btn-download">Сохранить</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <script src="adminscript.js"></script>
 </body>
