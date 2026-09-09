@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorMsg = document.getElementById('errorMsg');
     const segmentedBtns = document.querySelectorAll('.segmented-btn');
 
-    // 1. Модальное окно
     if (openAuthBtn && authModal) {
         openAuthBtn.addEventListener('click', () => {
             authModal.style.display = 'block';
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Логин
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -55,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Загрузка модов
     async function loadPublicMods() {
         if (!publicModsGrid) return;
         try {
@@ -67,7 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 4. Отрисовка карточек
     function renderMods() {
         if (!publicModsGrid) return;
         publicModsGrid.innerHTML = '';
@@ -83,11 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('article');
             card.className = 'mod-card';
 
-            let downloadBtnsHTML = '<div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 12px;">';
+            let downloadBtnsHTML = '';
 
             if (mod.mainFileId) {
                 downloadBtnsHTML += `
-                    <a href="/api/mods/download/${mod.mainFileId}" class="btn-download" style="text-decoration: none; flex: 1; justify-content: center;">
+                    <a href="/api/mods/download/${encodeURIComponent(mod.mainFileId)}" class="btn-download" target="_blank">
                         <span class="material-symbols-outlined">download</span> Скачать
                     </a>
                 `;
@@ -95,13 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (mod.extraFileId) {
                 downloadBtnsHTML += `
-                    <a href="/api/mods/download/${mod.extraFileId}" class="btn-download" style="text-decoration: none; flex: 1; justify-content: center; background: #334455;">
+                    <a href="/api/mods/download/${encodeURIComponent(mod.extraFileId)}" class="btn-download" target="_blank" style="background: #334455;">
                         <span class="material-symbols-outlined">extension</span> Доп. файл
                     </a>
                 `;
             }
-
-            downloadBtnsHTML += '</div>';
 
             card.innerHTML = `
                 <div class="mod-header">
@@ -118,7 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Переключение платформ
     segmentedBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             segmentedBtns.forEach(b => b.classList.remove('active'));
