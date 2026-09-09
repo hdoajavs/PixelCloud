@@ -6,9 +6,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Ваш токен Telegram-бота
 const TELEGRAM_TOKEN = '8879466084:AAEP3qIWz5ZiMySSdAiPHWeMMyttwp-Rj7g';
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
+
+// Включаем polling только для получения file_id от вашего бота
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -16,7 +17,17 @@ app.use(express.static('public'));
 
 const MODS_FILE = path.join(__dirname, 'mods.json');
 
-// Вспомогательные функции для работы с базой данных (mods.json)
+// Когда вы отправляете или пересылаете документ вашему боту — он отвечает готовым file_id
+bot.on('document', (msg) => {
+    const fileId = msg.document.file_id;
+    const fileName = msg.document.file_name || 'Файл';
+    bot.sendMessage(
+        msg.chat.id, 
+        `✅ **Файл получен!**\n\nИмя: \`${fileName}\`\n\nВаш **file_id**:\n\`${fileId}\``, 
+        { parse_mode: 'Markdown' }
+    );
+});
+
 function getMods() {
     if (!fs.existsSync(MODS_FILE)) return [];
     try {
@@ -30,12 +41,10 @@ function saveMods(mods) {
     fs.writeFileSync(MODS_FILE, JSON.stringify(mods, null, 2));
 }
 
-// Получить список всех модов
 app.get('/api/mods', (req, res) => {
     res.json(getMods());
 });
 
-// Добавить мод по file_id
 app.post('/api/mods/upload', (req, res) => {
     try {
         const { title, author, platform, version, description, mainFileId, extraFileId } = req.body;
@@ -67,19 +76,17 @@ app.post('/api/mods/upload', (req, res) => {
     }
 });
 
-// Скачивание файла: генерация прямой ссылки через Telegram API
 app.get('/api/mods/download/:fileId', async (req, res) => {
     try {
         const fileId = req.params.fileId;
         const fileLink = await bot.getFileLink(fileId);
-        res.redirect(fileLink);
+        return res.redirect(fileLink);
     } catch (err) {
-        console.error('Ошибка при получении ссылки на файл:', err);
-        res.status(404).send('Файл не найден или удалён из Telegram');
+        console.error('Ошибка при скачивании:', err.message);
+        res.status(404).send('Файл не найден. Убедитесь, что file_id был получен через вашего бота.');
     }
 });
 
-// Авторизация администратора
 app.post('/api/auth/login', (req, res) => {
     const { username, password } = req.body;
     if (username && password) {
@@ -88,7 +95,6 @@ app.post('/api/auth/login', (req, res) => {
     res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
 });
 
-// Удаление мода
 app.delete('/api/mods/:id', (req, res) => {
     let mods = getMods();
     mods = mods.filter(m => m.id !== req.params.id);
