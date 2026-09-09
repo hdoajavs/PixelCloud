@@ -1,142 +1,157 @@
 :root {
-    --md-sys-color-background: #121314;
-    --md-sys-color-surface: #1c1b1f;
-    --md-sys-color-surface-container: #25232a;
-    --md-sys-color-primary: #a8f08a;
-    --md-sys-color-on-primary: #153800;
-    --md-sys-color-outline: #938f96;
-    --md-sys-color-text: #e6e1e5;
+    --bg-color: #0f1115;
+    --card-bg: #1a1d24;
+    --accent-color: #8ce665;
+    --accent-text: #0d2800;
+    --text-color: #f0f0f0;
+    --subtext-color: #9aa0a6;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-    background-color: var(--md-sys-color-background);
-    color: var(--md-sys-color-text);
-    padding-bottom: 40px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 12px;
 }
 
-/* Фикс шапки */
+/* Исправленная шапка без съезжания кнопки */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
-    background: var(--md-sys-color-surface);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    flex-wrap: nowrap; /* Не дает элементам переноситься */
+    gap: 12px;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    min-width: 0;
 }
 
 .logo h1 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Сегментированное переключение */
+.btn-login-trigger {
+    background: var(--accent-color);
+    color: var(--accent-text);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Кнопки переключения Платформ */
 .segmented-control {
     display: flex;
-    background: var(--md-sys-color-surface-container);
+    background: var(--card-bg);
     padding: 4px;
-    border-radius: 28px;
-    margin: 20px 0;
-    gap: 4px;
+    border-radius: 24px;
+    margin-bottom: 20px;
 }
 
 .segmented-btn {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 16px;
+    padding: 10px;
     border: none;
     background: transparent;
-    color: var(--md-sys-color-text);
-    border-radius: 24px;
+    color: var(--subtext-color);
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
     cursor: pointer;
-    font-weight: 500;
-    transition: background 0.2s;
+    text-align: center;
 }
 
 .segmented-btn.active {
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
+    background: var(--accent-color);
+    color: var(--accent-text);
 }
 
 /* Карточки модов */
 .mods-grid {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 }
 
 .mod-card {
-    background: var(--md-sys-color-surface-container);
-    border-radius: 20px;
-    padding: 20px;
+    background: var(--card-bg);
+    border-radius: 18px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .mod-header {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
 }
 
 .mod-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.05rem;
+    color: #fff;
 }
 
 .mod-author {
-    font-size: 0.85rem;
-    color: var(--md-sys-color-outline);
+    font-size: 0.8rem;
+    color: var(--subtext-color);
 }
 
 .mod-description {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #ccc;
-    line-height: 1.4;
+    line-height: 1.3;
 }
 
-/* Фикс подвала карточки и кнопок */
+/* Фикс нижней части карточки */
 .mod-footer {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 8px;
+    justify-content: space-between;
+    margin-top: 6px;
+    gap: 8px;
 }
 
 .mod-badge {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    color: var(--subtext-color);
 }
 
 .btn-download {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 600;
-    cursor: pointer;
+    background: var(--accent-color);
+    color: var(--accent-text);
+    padding: 8px 18px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 0.85rem;
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
