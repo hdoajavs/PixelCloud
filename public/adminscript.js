@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('uploadForm');
     const adminModsGrid = document.getElementById('adminModsGrid');
 
-    // Проверка авторизации
     const currentAdmin = localStorage.getItem('current_admin');
     if (!currentAdmin) {
         window.location.href = 'index.html';
@@ -20,7 +19,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Загрузка модов в панели
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const payload = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                platform: document.getElementById('platform').value,
+                version: document.getElementById('version').value,
+                description: document.getElementById('description').value,
+                mainFileId: document.getElementById('mainFileId').value.trim(),
+                extraFileId: document.getElementById('extraFileId').value.trim() || null
+            };
+
+            try {
+                const res = await fetch('/api/mods/upload', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    alert('Мод успешно добавлен!');
+                    uploadForm.reset();
+                    loadAdminMods();
+                } else {
+                    alert(data.message || 'Ошибка сохранения');
+                }
+            } catch (err) {
+                alert('Ошибка соединения с сервером');
+            }
+        });
+    }
+
     async function loadAdminMods() {
         if (!adminModsGrid) return;
         try {
@@ -40,7 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.innerHTML = `
                     <div>
                         <strong>${mod.title}</strong> (${mod.version}) — <em>${mod.platform}</em>
-                        <div style="font-size: 0.8rem; color: var(--md-sys-color-outline);">Файлы в Telegram: ${mod.mainFileId ? 'Основной ✅' : 'Нет'} ${mod.extraFileId ? '| Доп. ✅' : ''}</div>
+                        <div style="font-size: 0.8rem; color: var(--md-sys-color-outline);">
+                            file_id: ${mod.mainFileId ? 'Основной ✅' : 'Нет'} ${mod.extraFileId ? '| Доп. ✅' : ''}
+                        </div>
                     </div>
                     <button onclick="deleteMod('${mod.id}')" style="background: none; border: none; color: #ffb4ab; cursor: pointer;">
                         <span class="material-symbols-outlined">delete</span>
@@ -53,54 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Удаление мода
     window.deleteMod = async (id) => {
-        if (!confirm('Удалить этот мод?')) return;
+        if (!confirm('Вы уверены, что хотите удалить этот мод?')) return;
         try {
             await fetch(`/api/mods/${id}`, { method: 'DELETE' });
             loadAdminMods();
         } catch (err) {
-            alert('Ошибка при удалении');
+            alert('Ошибка при удалении мода');
         }
     };
-
-    // Отправка формы загрузки двух файлов
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(uploadForm);
-            const submitBtn = uploadForm.querySelector('button[type="submit"]');
-
-            if (submitBtn) {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Загрузка в Telegram...';
-            }
-
-            try {
-                const res = await fetch('/api/mods/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await res.json();
-                if (res.ok && data.success) {
-                    alert('Мод успешно опубликован!');
-                    uploadForm.reset();
-                    loadAdminMods();
-                } else {
-                    alert(data.message || 'Ошибка при загрузке мода');
-                }
-            } catch (err) {
-                console.error(err);
-                alert('Ошибка соединения с сервером');
-            } finally {
-                if (submitBtn) {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<span class="material-symbols-outlined">upload</span> Опубликовать';
-                }
-            }
-        });
-    }
 
     loadAdminMods();
 });
