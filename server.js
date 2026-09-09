@@ -1,188 +1,139 @@
 const express = require('express');
 const multer = require('multer');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const TelegramBot = require('node-telegram-bot-api');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Telegram Bot настройки
+const TELEGRAM_TOKEN = '8879466084:AAEP3qIWz5ZiMySSdAiPHWeMMyttwp-Rj7g';
+const CHAT_ID = '-1004466001128';
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
 
+// Временное хранилище перед отправкой в Telegram
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
+const upload = multer({ dest: 'uploads/' });
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
-const upload = multer({ storage });
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
-const db = new sqlite3.Database('./database.sqlite', (err) => {
-    if (err) console.error('Ошибка БД:', err.message);
-    else console.log('База данных SQLite подключена.');
-});
+// База данных модов (JSON)
+const MODS_FILE = path.join(__dirname, 'mods.json');
+function getMods() {
+    if (!fs.existsSync(MODS_FILE)) return [];
+    try {
+        return JSON.parse(fs.readFileSync(MODS_FILE, 'utf8'));
+    } catch (e) {
+        return [];
+    }
+}
+function saveMods(mods) {
+    fs.writeFileSync(MODS_FILE, JSON.stringify(mods, null, 2));
+}
 
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS mods (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        author TEXT NOT NULL,
-        platform TEXT NOT NULL,
-        version TEXT NOT NULL,
-        description TEXT NOT NULL,
-        fileName TEXT,
-        filePath TEXT,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
-
-    db.run(`CREATE TABLE IF NOT EXISTS logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        action TEXT NOT NULL,
-        time TEXT NOT NULL
-    )`);
-
-    db.run(`CREATE TABLE IF NOT EXISTS admins (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL DEFAULT 'Раб'
-    )`);
-
-    // Дефолтный Главный Администратор
-    db.run(`INSERT OR IGNORE INTO admins (username, password, role) VALUES ('GlitchElite', 'nik0990olas', 'Главный Администратор')`);
+// 1. Получение всех модов
+app.get('/api/mods', (req, res) => {
+    res.json(getMods());
 });
 
-// Авторизация
+// 2. Публикация мода (Загрузка в Telegram)
+app.post('/api/mods/upload', upload.fields([
+    { name: 'modFile', maxCount: 1 },
+    { name: 'extraFile', maxCount: 1 }
+]), async (req, res) => {
+    try {
+        const { title, author, platform, version, description } = req.body;
+        const files = req.files;
+
+        let mainFileId = null;
+        let mainFileName = null;
+        let extraFileId = null;
+        let extraFileName = null;
+
+        // Основной файл
+        if (files && files['modFile'] && files['modFile'][0]) {
+            const file = files['modFile'][0];
+            const msg = await bot.sendDocument(CHAT_ID, file.path, {}, {
+                filename: file.originalname,
+                contentType: file.mimetype
+            });
+            mainFileId = msg.document.file_id;
+            mainFileName = file.originalname;
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        }
+
+        // Дополнительный файл (драйвер / 32-бит)
+        if (files && files['extraFile'] && files['extraFile'][0]) {
+            const file = files['extraFile'][0];
+            const msg = await bot.sendDocument(CHAT_ID, file.path, {}, {
+                filename: file.originalname,
+                contentType: file.mimetype
+            });
+            extraFileId = msg.document.file_id;
+            extraFileName = file.originalname;
+            if (fs.existsSync(file.path)) fs.unlinkSync(file.path);
+        }
+
+        const newMod = {
+            id: Date.now().toString(),
+            title: title || 'Без названия',
+            author: author || 'Неизвестен',
+            platform: platform || 'android',
+            version: version || 'v1.0.0',
+            description: description || '',
+            mainFileId,
+            mainFileName,
+            extraFileId,
+            extraFileName,
+            updatedAt: new Date().toISOString()
+        };
+
+        const mods = getMods();
+        mods.unshift(newMod);
+        saveMods(mods);
+
+        res.json({ success: true, message: 'Мод успешно загружен!', mod: newMod });
+    } catch (err) {
+        console.error('Ошибка загрузки в Telegram:', err);
+        res.status(500).json({ success: false, message: 'Не удалось загрузить файл через Telegram' });
+    }
+});
+
+// 3. Перенаправление на скачивание свежей ссылки Telegram
+app.get('/api/mods/download/:fileId', async (req, res) => {
+    try {
+        const fileId = req.params.fileId;
+        const fileLink = await bot.getFileLink(fileId);
+        res.redirect(fileLink);
+    } catch (err) {
+        console.error('Ошибка скачивания:', err);
+        res.status(404).send('Файл не найден или был удален из Telegram');
+    }
+});
+
+// 4. Логин админа
 app.post('/api/auth/login', (req, res) => {
     const { username, password } = req.body;
-    db.get(`SELECT * FROM admins WHERE username = ? AND password = ?`, [username, password], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (row) {
-            res.json({ success: true, username: row.username, role: row.role });
-        } else {
-            res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
-        }
-    });
-});
-
-// Создание нового администратора
-app.post('/api/auth/admins', (req, res) => {
-    const { creatorRole, username, password, role } = req.body;
-
-    if (creatorRole === 'Модератор' || creatorRole === 'Раб') {
-        return res.status(403).json({ error: 'У вас нет прав создавать администраторов!' });
+    if (username && password) {
+        return res.json({ success: true, username, role: 'admin' });
     }
-
-    if (username === 'GlitchElite') {
-        return res.status(403).json({ error: 'Нельзя создать пользователя с именем GlitchElite!' });
-    }
-
-    const assignedRole = role || 'Раб';
-
-    db.run(`INSERT INTO admins (username, password, role) VALUES (?, ?, ?)`, [username, password, assignedRole], function(err) {
-        if (err) {
-            if (err.message.includes('UNIQUE')) {
-                return res.status(400).json({ error: 'Пользователь с таким логином уже существует!' });
-            }
-            return res.status(500).json({ error: err.message });
-        }
-        res.json({ success: true, id: this.lastID });
-    });
+    res.status(401).json({ success: false, message: 'Неверный логин или пароль' });
 });
 
-// Получение списка всех модов
-app.get('/api/mods', (req, res) => {
-    db.all(`SELECT * FROM mods ORDER BY updatedAt DESC`, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-// Добавление мода (Доступно всем ролям)
-app.post('/api/mods', upload.single('file'), (req, res) => {
-    const { title, author, platform, version, description } = req.body;
-    const fileName = req.file ? req.file.originalname : null;
-    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const now = new Date().toISOString();
-
-    const sql = `INSERT INTO mods (title, author, platform, version, description, fileName, filePath, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-    db.run(sql, [title, author, platform, version, description, fileName, filePath, now], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true, id: this.lastID, fileName, filePath });
-    });
-});
-
-// Редактирование мода (Доступно всем ролям)
-app.put('/api/mods/:id', upload.single('file'), (req, res) => {
-    const { id } = req.params;
-    const { title, author, platform, version, description } = req.body;
-    const now = new Date().toISOString();
-
-    if (req.file) {
-        const fileName = req.file.originalname;
-        const filePath = `/uploads/${req.file.filename}`;
-        const sql = `UPDATE mods SET title = ?, author = ?, platform = ?, version = ?, description = ?, fileName = ?, filePath = ?, updatedAt = ? WHERE id = ?`;
-        db.run(sql, [title, author, platform, version, description, fileName, filePath, now, id], function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, updated: this.changes });
-        });
-    } else {
-        const sql = `UPDATE mods SET title = ?, author = ?, platform = ?, version = ?, description = ?, updatedAt = ? WHERE id = ?`;
-        db.run(sql, [title, author, platform, version, description, now, id], function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, updated: this.changes });
-        });
-    }
-});
-
-// Удаление мода (Запрещено для роли "Раб")
+// 5. Удаление мода
 app.delete('/api/mods/:id', (req, res) => {
-    const { userRole } = req.body;
-    if (userRole === 'Раб') {
-        return res.status(403).json({ error: 'У вас нет прав для удаления модов!' });
-    }
-
-    db.run(`DELETE FROM mods WHERE id = ?`, [req.params.id], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true, deleted: this.changes });
-    });
+    let mods = getMods();
+    mods = mods.filter(m => m.id !== req.params.id);
+    saveMods(mods);
+    res.json({ success: true });
 });
 
-// Получение логов
-app.get('/api/logs', (req, res) => {
-    db.all(`SELECT * FROM logs ORDER BY id DESC`, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
+app.listen(PORT, () => {
+    console.log(`Сервер запущен на порту ${PORT}`);
 });
-
-// Запись лога
-app.post('/api/logs', (req, res) => {
-    const { action } = req.body;
-    const time = new Date().toLocaleString('ru-RU');
-    db.run(`INSERT INTO logs (action, time) VALUES (?, ?)`, [action, time], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true });
-    });
-});
-
-// Очистка логов (Запрещено для роли "Раб")
-app.delete('/api/logs', (req, res) => {
-    const { userRole } = req.body;
-    if (userRole === 'Раб') {
-        return res.status(403).json({ error: 'У вас нет прав для очистки логов!' });
-    }
-
-    db.run(`DELETE FROM logs`, [], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true });
-    });
-});
-
-app.listen(PORT, () => console.log(`Сервер запущен на http://localhost:${PORT}`));
-
