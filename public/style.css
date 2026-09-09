@@ -1,0 +1,447 @@
+:root {
+    --md-sys-color-background: #fbfdf8;
+    --md-sys-color-surface: #f0f5ed;
+    --md-sys-color-surface-variant: #e1e4dc;
+    --md-sys-color-primary: #386a20;
+    --md-sys-color-on-primary: #ffffff;
+    --md-sys-color-primary-container: #b8f397;
+    --md-sys-color-on-primary-container: #042100;
+    --md-sys-color-secondary-container: #dce7c8;
+    --md-sys-color-on-secondary-container: #151e0b;
+    --md-sys-color-on-surface: #1a1c18;
+    --md-sys-color-outline: #74796d;
+
+    --md-shape-corner-small: 12px;
+    --md-shape-corner-medium: 16px;
+    --md-shape-corner-large: 28px;
+    --md-shape-corner-full: 9999px;
+
+    --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --md-sys-color-background: #121410;
+        --md-sys-color-surface: #1a1c18;
+        --md-sys-color-surface-variant: #43483e;
+        --md-sys-color-primary: #9cd67d;
+        --md-sys-color-on-primary: #0c3900;
+        --md-sys-color-primary-container: #205108;
+        --md-sys-color-on-primary-container: #b8f397;
+        --md-sys-color-secondary-container: #414a34;
+        --md-sys-color-on-secondary-container: #dce7c8;
+        --md-sys-color-on-surface: #e2e3dc;
+        --md-sys-color-outline: #8e9285;
+    }
+}
+
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    -webkit-tap-highlight-color: transparent; 
+}
+
+*:focus {
+    outline: none;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-surface);
+    line-height: 1.5;
+    padding-bottom: 40px;
+}
+
+/* Шапка */
+.top-app-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background-color: var(--md-sys-color-background);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 1.3rem;
+}
+
+.logo-icon {
+    font-size: 32px;
+    color: var(--md-sys-color-primary);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    padding: 10px;
+    border-radius: var(--md-shape-corner-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.icon-btn:hover { background-color: var(--md-sys-color-surface-variant); }
+.icon-btn:active { transform: scale(0.95); }
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 12px 20px 0 20px;
+}
+
+/* Баннер-анимация над переключателем */
+.hero-illustration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 8px 16px;
+    position: relative;
+    text-align: center;
+}
+
+.hero-glow {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    background: var(--md-sys-color-primary-container);
+    filter: blur(40px);
+    border-radius: 50%;
+    opacity: 0.5;
+    z-index: 0;
+}
+
+.hero-icons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
+}
+
+.main-icon {
+    font-size: 54px;
+    color: var(--md-sys-color-primary);
+    animation: pulseGlow 3s infinite ease-in-out;
+}
+
+.float-icon {
+    font-size: 32px;
+    color: var(--md-sys-color-outline);
+    opacity: 0.8;
+}
+
+.icon-left {
+    animation: floatLeft 3.5s infinite ease-in-out;
+}
+
+.icon-right {
+    animation: floatRight 4s infinite ease-in-out;
+}
+
+.hero-subtitle {
+    font-size: 0.9rem;
+    color: var(--md-sys-color-outline);
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.85; }
+}
+
+@keyframes floatLeft {
+    0%, 100% { transform: translateY(0) rotate(-6deg); }
+    50% { transform: translateY(-8px) rotate(-12deg); }
+}
+
+@keyframes floatRight {
+    0%, 100% { transform: translateY(0) rotate(6deg); }
+    50% { transform: translateY(-8px) rotate(12deg); }
+}
+
+/* Переключатель платформ */
+.platform-segmented-button {
+    display: flex;
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 4px;
+    border-radius: var(--md-shape-corner-full);
+    margin: 12px 0 28px 0;
+    gap: 4px;
+}
+
+.segmented-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--md-sys-color-on-surface);
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: 1rem;
+    border-radius: var(--md-shape-corner-full);
+    cursor: pointer;
+    transition: background-color 0.3s cubic-bezier(0.2, 0, 0, 1), 
+                color 0.3s cubic-bezier(0.2, 0, 0, 1), 
+                transform 0.15s ease;
+}
+
+.segmented-btn:active {
+    transform: scale(0.98);
+}
+
+.segmented-btn.active {
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Сетка карточек и анимация появления */
+.mods-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.mod-card {
+    background-color: var(--md-sys-color-surface);
+    border-radius: var(--md-shape-corner-large);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.25s ease;
+    animation: fadeIn 0.4s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+.mod-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.mod-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.mod-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border-radius: var(--md-shape-corner-medium);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mod-title { font-size: 1.2rem; font-weight: 500; }
+.mod-author { font-size: 0.85rem; color: var(--md-sys-color-outline); }
+
+.mod-description {
+    font-size: 0.95rem;
+    color: var(--md-sys-color-on-surface);
+    opacity: 0.85;
+    margin-bottom: 24px;
+    flex-grow: 1;
+}
+
+.mod-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mod-badge {
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 4px 10px;
+    border-radius: var(--md-shape-corner-small);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.btn-download, .btn-danger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--md-shape-corner-full);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease, transform 0.1s ease;
+}
+
+.btn-download {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+}
+
+.btn-download:hover { opacity: 0.92; }
+.btn-download:active { transform: scale(0.97); }
+
+.btn-danger {
+    background-color: #ba1a1a;
+    color: #ffffff;
+}
+
+.btn-danger:hover { opacity: 0.92; }
+.btn-danger:active { transform: scale(0.97); }
+
+/* Элементы админки */
+.panel-card {
+    background-color: var(--md-sys-color-surface);
+    border-radius: var(--md-shape-corner-large);
+    padding: 28px;
+    margin-bottom: 28px;
+    animation: fadeIn 0.3s ease;
+}
+
+.logs-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.log-item {
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 12px 16px;
+    border-radius: var(--md-shape-corner-small);
+    font-size: 0.88rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.log-time {
+    color: var(--md-sys-color-outline);
+    font-size: 0.78rem;
+}
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 200;
+    padding: 20px;
+}
+
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-card {
+    background-color: var(--md-sys-color-surface);
+    border-radius: var(--md-shape-corner-large);
+    padding: 28px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+    transform: translateY(20px) scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.modal-overlay.active .modal-card {
+    transform: translateY(0) scale(1);
+}
+
+.modal-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.modal-icon { font-size: 28px; color: var(--md-sys-color-primary); }
+
+.input-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.input-field label {
+    font-size: 0.85rem;
+    color: var(--md-sys-color-outline);
+    font-weight: 500;
+}
+
+.input-field input, .input-field select {
+    background-color: var(--md-sys-color-surface-variant);
+    border: 1px solid transparent;
+    padding: 12px 16px;
+    border-radius: var(--md-shape-corner-small);
+    font-size: 1rem;
+    color: var(--md-sys-color-on-surface);
+    transition: border-color 0.2s ease;
+}
+
+.input-field input:focus, .input-field select:focus {
+    border-color: var(--md-sys-color-primary);
+}
+
+.error-msg {
+    color: #ba1a1a;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    display: none;
+}
+
+.modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+.btn-text {
+    background: transparent;
+    border: none;
+    color: var(--md-sys-color-primary);
+    padding: 10px 16px;
+    border-radius: var(--md-shape-corner-full);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-text:hover { background-color: var(--md-sys-color-surface-variant); }
+
+.footer {
+    text-align: center;
+    margin-top: 60px;
+    font-size: 0.85rem;
+    color: var(--md-sys-color-outline);
+}

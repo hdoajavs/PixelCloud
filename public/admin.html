@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления — PixelCloud</title>
+    <link rel="stylesheet" href="adminstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <span class="material-symbols-outlined logo-icon">cloud_queue</span>
+                <span class="logo-text">PixelCloud Admin</span>
+            </a>
+            <div class="user-info">
+                <span class="material-symbols-outlined">account_circle</span>
+                <span id="currentAdminName">Загрузка...</span>
+                <button id="logoutBtn" class="btn-secondary" title="Выйти">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Левая колонка: Формы добавления -->
+        <section class="forms-section">
+            <!-- Форма публикации мода -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    Опубликовать мод
+                </h2>
+                <form id="addModForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="modTitle">Название мода</label>
+                        <input type="text" id="modTitle" class="input-field" placeholder="Например: Super Pack" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modAuthor">Автор</label>
+                        <input type="text" id="modAuthor" class="input-field" placeholder="Имя автора" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modPlatform">Платформа</label>
+                        <select id="modPlatform" class="input-field" required>
+                            <option value="windows">Windows (PC)</option>
+                            <option value="android">Android</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modVersion">Версия</label>
+                        <input type="text" id="modVersion" class="input-field" placeholder="v1.0.0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modDesc">Описание</label>
+                        <textarea id="modDesc" class="input-field textarea" placeholder="Краткое описание мода..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modFile">Файл (.exe)</label>
+                        <input type="file" id="modFile" class="input-field-file">
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <span class="material-symbols-outlined">publish</span>
+                        Опубликовать
+                    </button>
+                </form>
+            </div>
+
+            <!-- Форма создания нового администратора (Скрыта для Модераторов и Рабов) -->
+            <div class="card" id="addAdminCard">
+                <h2 class="card-title">
+                    <span class="material-symbols-outlined">person_add</span>
+                    Создать администратора
+                </h2>
+                <form id="addAdminForm">
+                    <div class="form-group">
+                        <label for="newAdminUser">Логин</label>
+                        <input type="text" id="newAdminUser" class="input-field" placeholder="Логин нового админа" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newAdminPass">Пароль</label>
+                        <input type="password" id="newAdminPass" class="input-field" placeholder="Пароль" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newAdminRole">Ранг / Роль</label>
+                        <select id="newAdminRole" class="input-field" required>
+                            <option value="Раб">Раб</option>
+                            <option value="Модератор">Модератор</option>
+                            <option value="Администратор">Администратор</option>
+                            <option value="Главный Администратор">Главный Администратор</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-secondary-action">
+                        <span class="material-symbols-outlined">shield_person</span>
+                        Создать аккаунт
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Правая колонка: Список модов и логи -->
+        <section class="content-section">
+            <div class="card">
+                <div class="card-header-flex">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">extension</span>
+                        Управление модами
+                    </h2>
+                    <span id="modsCount" class="badge">0 модов</span>
+                </div>
+                <div id="adminModsGrid" class="mods-grid">
+                    <!-- Моды загружаются динамически -->
+                </div>
+            </div>
+
+            <!-- Блок логов -->
+            <div class="card" style="margin-top: 24px;">
+                <div class="card-header-flex">
+                    <h2 class="card-title">
+                        <span class="material-symbols-outlined">history</span>
+                        История действий (Логи)
+                    </h2>
+                    <button id="clearLogsBtn" class="btn-danger-small" title="Очистить логи">
+                        <span class="material-symbols-outlined">delete_sweep</span>
+                        Очистить
+                    </button>
+                </div>
+                <ul id="logsList" class="logs-list">
+                    <!-- Логи загружаются динамически -->
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно редактирования мода -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Редактировать мод: <span id="editModalTargetTitle"></span></h2>
+                <button type="button" id="closeEditBtn" class="btn-icon">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <form id="editModForm" enctype="multipart/form-data">
+                <input type="hidden" id="editModId">
+                
+                <div class="form-group">
+                    <label for="editModTitle">Название</label>
+                    <input type="text" id="editModTitle" class="input-field" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModAuthor">Автор</label>
+                    <input type="text" id="editModAuthor" class="input-field" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModPlatform">Платформа</label>
+                    <select id="editModPlatform" class="input-field" required>
+                        <option value="windows">Windows (PC)</option>
+                        <option value="android">Android</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModVersion">Версия</label>
+                    <input type="text" id="editModVersion" class="input-field" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModDesc">Описание</label>
+                    <textarea id="editModDesc" class="input-field textarea" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editModFile">Заменить файл (.exe)</label>
+                    <input type="file" id="editModFile" class="input-field-file">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary">Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="adminscript.js"></script>
+</body>
+</html>
+

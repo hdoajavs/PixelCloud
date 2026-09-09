@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PixelCloud — Каталог модов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="top-app-bar">
+        <div class="logo">
+            <span class="material-symbols-outlined logo-icon">cloud_download</span>
+            <span class="logo-text">PixelCloud</span>
+        </div>
+        <button class="icon-btn" id="openAuthBtn" aria-label="Войти как админ">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+        </button>
+    </header>
+
+    <main class="container">
+        <!-- Иллюстрация над кнопками переключения -->
+        <div class="hero-illustration">
+            <div class="hero-glow"></div>
+            <div class="hero-icons">
+                <span class="material-symbols-outlined float-icon icon-left">android</span>
+                <span class="material-symbols-outlined main-icon">cloud_sync</span>
+                <span class="material-symbols-outlined float-icon icon-right">desktop_windows</span>
+            </div>
+            <p class="hero-subtitle">Выберите платформу для просмотра доступных модов</p>
+        </div>
+
+        <!-- Переключатель платформ -->
+        <section class="platform-segmented-button">
+            <button class="segmented-btn active" data-platform="android">
+                <span class="material-symbols-outlined">android</span> Android
+            </button>
+            <button class="segmented-btn" data-platform="pc">
+                <span class="material-symbols-outlined">desktop_windows</span> ПК
+            </button>
+        </section>
+
+        <!-- Сетка карточек -->
+        <section class="mods-grid" id="publicModsGrid"></section>
+    </main>
+
+    <!-- Модальное окно входа -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="material-symbols-outlined modal-icon">lock</span>
+                <h2>Вход для админа</h2>
+            </div>
+            <form id="loginForm">
+                <div class="input-field">
+                    <label for="username">Логин</label>
+                    <input type="text" id="username" placeholder="Введите логин" required>
+                </div>
+                <div class="input-field">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" placeholder="Введите пароль" required>
+                </div>
+                <div class="error-msg" id="errorMsg">Неверный логин или пароль</div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-text" id="closeAuthBtn">Отмена</button>
+                    <button type="submit" class="btn-download">Войти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 PixelCloud. Вдохновлено дизайном Google Pixel.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
