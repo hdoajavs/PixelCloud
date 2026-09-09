@@ -10,7 +10,7 @@ function formatDate(dateString) {
 let allMods = [];
 let currentPlatform = 'android';
 
-// 1. Загрузка модов
+// 1. Загрузка списка модов
 async function loadPublicMods() {
     const grid = document.getElementById('publicModsGrid');
     if (!grid) return;
@@ -27,7 +27,7 @@ async function loadPublicMods() {
     }
 }
 
-// 2. Отрисовка карточек
+// 2. Отрисовка модов на главной
 function renderMods() {
     const grid = document.getElementById('publicModsGrid');
     if (!grid) return;
@@ -45,17 +45,37 @@ function renderMods() {
         const card = document.createElement('article');
         card.className = 'mod-card';
 
-        const downloadBtnHTML = mod.filePath
-            ? `<a href="${mod.filePath}" download class="btn-download" style="text-decoration: none;" title="Скачать">
-                    <span class="material-symbols-outlined">download</span>
-                    <span>Скачать</span>
-               </a>`
-            : `<button class="btn-download" disabled style="opacity: 0.5; cursor: not-allowed;">
-                    <span class="material-symbols-outlined">file_off</span>
-                    <span>Нет файла</span>
-               </button>`;
+        // Генерация кнопок скачивания (Основной + Дополнительный)
+        let downloadBtnsHTML = '<div style="display: flex; gap: 8px; flex-wrap: wrap; width: 100%; margin-top: 8px;">';
 
-        const fileLabel = mod.fileName ? mod.fileName : 'Файл не прикреплен';
+        if (mod.mainFileId) {
+            downloadBtnsHTML += `
+                <a href="/api/mods/download/${mod.mainFileId}" class="btn-download" style="text-decoration: none; flex: 1; justify-content: center;" title="${mod.mainFileName || 'Основной файл'}">
+                    <span class="material-symbols-outlined">download</span>
+                    <span>${mod.extraFileId ? 'Основной' : 'Скачать'}</span>
+                </a>
+            `;
+        }
+
+        if (mod.extraFileId) {
+            downloadBtnsHTML += `
+                <a href="/api/mods/download/${mod.extraFileId}" class="btn-download" style="text-decoration: none; flex: 1; justify-content: center; background: var(--md-sys-color-secondary-container, #334455);" title="${mod.extraFileName || 'Доп. файл'}">
+                    <span class="material-symbols-outlined">extension</span>
+                    <span>Доп. файл</span>
+                </a>
+            `;
+        }
+
+        if (!mod.mainFileId && !mod.extraFileId) {
+            downloadBtnsHTML += `
+                <button class="btn-download" disabled style="opacity: 0.5; cursor: not-allowed; width: 100%; justify-content: center;">
+                    <span class="material-symbols-outlined">file_off</span>
+                    <span>Нет файлов</span>
+                </button>
+            `;
+        }
+        downloadBtnsHTML += '</div>';
+
         const formattedDate = formatDate(mod.updatedAt);
 
         card.innerHTML = `
@@ -69,24 +89,20 @@ function renderMods() {
                 </div>
             </div>
             <p class="mod-description">${mod.description}</p>
-            <div style="margin-bottom: 8px; font-size: 0.85rem; color: ${mod.fileName ? 'var(--md-sys-color-primary)' : 'var(--md-sys-color-outline)'}; display: flex; align-items: center; gap: 6px;">
-                <span class="material-symbols-outlined" style="font-size: 18px;">${mod.fileName ? 'attach_file' : 'file_off'}</span>
-                <span>${fileLabel}</span>
-            </div>
-            <div style="margin-bottom: 12px; font-size: 0.8rem; color: var(--md-sys-color-outline); display: flex; align-items: center; gap: 4px;">
+            <div style="margin-bottom: 8px; font-size: 0.8rem; color: var(--md-sys-color-outline); display: flex; align-items: center; gap: 4px;">
                 <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
                 <span>Обновлено: ${formattedDate}</span>
             </div>
-            <div class="mod-footer">
+            <div class="mod-footer" style="flex-direction: column; align-items: flex-start;">
                 <span class="mod-badge">${mod.version} (${mod.platform.toUpperCase()})</span>
-                ${downloadBtnHTML}
+                ${downloadBtnsHTML}
             </div>
         `;
         grid.appendChild(card);
     });
 }
 
-// 3. Переключение платформ (Android / ПК)
+// 3. Переключатель платформ
 const segmentedBtns = document.querySelectorAll('.segmented-btn');
 segmentedBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -94,12 +110,12 @@ segmentedBtns.forEach(btn => {
         btn.classList.add('active');
         
         const platform = btn.getAttribute('data-platform');
-        currentPlatform = platform === 'pc' ? 'windows' : 'android';
+        currentPlatform = platform === 'pc' ? 'windows' : platform;
         renderMods();
     });
 });
 
-// 4. Логика модального окна входа
+// 4. Модалка входа
 const authModal = document.getElementById('authModal');
 const openAuthBtn = document.getElementById('openAuthBtn');
 const closeAuthBtn = document.getElementById('closeAuthBtn');
@@ -150,5 +166,4 @@ if (loginForm) {
     });
 }
 
-// Инициализация
 loadPublicMods();
