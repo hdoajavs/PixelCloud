@@ -4,78 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PixelCloud — Каталог модов</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body>
-
-    <header class="top-app-bar">
+    <header class="header">
         <div class="logo">
-            <span class="material-symbols-outlined logo-icon">cloud_download</span>
-            <span class="logo-text">PixelCloud</span>
+            <span class="material-symbols-outlined">cloud_download</span>
+            <h1>PixelCloud</h1>
         </div>
-        <button class="icon-btn" id="openAuthBtn" aria-label="Войти как админ">
-            <span class="material-symbols-outlined">admin_panel_settings</span>
+        <button id="openAuthBtn" class="btn-download" style="padding: 6px 12px; font-size: 0.85rem;">
+            <span class="material-symbols-outlined">lock</span> Войти
         </button>
     </header>
 
-    <main class="container">
-        <!-- Иллюстрация над кнопками переключения -->
-        <div class="hero-illustration">
-            <div class="hero-glow"></div>
-            <div class="hero-icons">
-                <span class="material-symbols-outlined float-icon icon-left">android</span>
-                <span class="material-symbols-outlined main-icon">cloud_sync</span>
-                <span class="material-symbols-outlined float-icon icon-right">desktop_windows</span>
-            </div>
-            <p class="hero-subtitle">Выберите платформу для просмотра доступных модов</p>
-        </div>
-
+    <main class="container" style="max-width: 900px; margin: 20px auto; padding: 0 16px;">
         <!-- Переключатель платформ -->
-        <section class="platform-segmented-button">
+        <div class="segmented-control" style="display: flex; gap: 8px; margin-bottom: 20px;">
             <button class="segmented-btn active" data-platform="android">
                 <span class="material-symbols-outlined">android</span> Android
             </button>
-            <button class="segmented-btn" data-platform="windows">
-                <span class="material-symbols-outlined">desktop_windows</span> ПК
+            <button class="segmented-btn" data-platform="pc">
+                <span class="material-symbols-outlined">desktop_windows</span> Windows
             </button>
-        </section>
+        </div>
 
-        <!-- Сетка карточек -->
-        <section class="mods-grid" id="publicModsGrid"></section>
+        <!-- Сетка модов -->
+        <div id="publicModsGrid" class="mods-grid">
+            <p style="text-align: center; color: var(--md-sys-color-outline);">Загрузка модов...</p>
+        </div>
     </main>
 
     <!-- Модальное окно входа -->
-    <div class="modal-overlay" id="authModal">
-        <div class="modal-card">
-            <div class="modal-header">
-                <span class="material-symbols-outlined modal-icon">lock</span>
-                <h2>Вход для админа</h2>
-            </div>
+    <div id="authModal" class="modal" style="display: none;">
+        <div class="modal-content" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 24px; border-radius: 16px; max-width: 360px; margin: 100px auto; position: relative;">
+            <button id="closeAuthBtn" style="position: absolute; right: 12px; top: 12px; background: none; border: none; color: inherit; cursor: pointer;">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <h2 style="margin-bottom: 16px;">Авторизация</h2>
             <form id="loginForm">
-                <div class="input-field">
-                    <label for="username">Логин</label>
-                    <input type="text" id="username" placeholder="Введите логин" required>
+                <div style="margin-bottom: 12px;">
+                    <label style="font-size: 0.85rem;">Логин</label>
+                    <input type="text" id="username" required style="width: 100%; padding: 8px; border-radius: 6px; background: #121212; color: #fff; border: 1px solid #444; box-sizing: border-box;">
                 </div>
-                <div class="input-field">
-                    <label for="password">Пароль</label>
-                    <input type="password" id="password" placeholder="Введите пароль" required>
+                <div style="margin-bottom: 16px;">
+                    <label style="font-size: 0.85rem;">Пароль</label>
+                    <input type="password" id="password" required style="width: 100%; padding: 8px; border-radius: 6px; background: #121212; color: #fff; border: 1px solid #444; box-sizing: border-box;">
                 </div>
-                <div class="error-msg" id="errorMsg">Неверный логин или пароль</div>
-                <div class="modal-actions">
-                    <button type="button" class="btn-text" id="closeAuthBtn">Отмена</button>
-                    <button type="submit" class="btn-download">Войти</button>
-                </div>
+                <p id="errorMsg" style="color: #ffb4ab; display: none; font-size: 0.85rem; margin-bottom: 12px;"></p>
+                <button type="submit" class="btn-download" style="width: 100%; justify-content: center;">Войти</button>
             </form>
         </div>
     </div>
-
-    <footer class="footer">
-        <p>&copy; 2026 PixelCloud. Вдохновлено дизайном Google Pixel.</p>
-    </footer>
 
     <script src="script.js"></script>
 </body>
