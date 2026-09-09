@@ -15,7 +15,7 @@
     <header class="top-app-bar">
         <div class="logo">
             <span class="material-symbols-outlined logo-icon">cloud_download</span>
-            <span class="logo-text" style="color: var(--md-sys-color-on-surface, #fff);">PixelCloud Admin</span>
+            <span class="logo-text" style="color: #fff;">PixelCloud Admin</span>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div id="adminInfo" style="display: flex; align-items: center; gap: 6px; font-weight: 500;">
@@ -30,7 +30,7 @@
 
     <main class="container" style="max-width: 800px; margin: 24px auto;">
 
-        <!-- Публикация мода -->
+        <!-- Опубликовать мод -->
         <section class="admin-card" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
             <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
                 <span class="material-symbols-outlined">add_circle</span> Опубликовать мод
@@ -59,25 +59,32 @@
                     <label for="description">Описание</label>
                     <textarea id="description" name="description" rows="3" placeholder="Краткое описание мода..." required style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);"></textarea>
                 </div>
+                
+                <!-- Загрузка файлов (Основной + Дополнительный) -->
                 <div class="input-field">
-                    <label for="modFile" id="fileLabel">Файл мода</label>
+                    <label for="modFile">Основной файл (Мод / 64-бит)</label>
                     <input type="file" id="modFile" name="modFile" style="margin-top: 6px;">
                 </div>
-                <button type="submit" class="btn-download" style="margin-top: 12px; width: 100%; justify-content: center;">
+                <div class="input-field" style="margin-top: 12px;">
+                    <label for="extraFile">Доп. файл (Драйвер / 32-бит)</label>
+                    <input type="file" id="extraFile" name="extraFile" style="margin-top: 6px;">
+                </div>
+
+                <button type="submit" class="btn-download" style="margin-top: 16px; width: 100%; justify-content: center;">
                     <span class="material-symbols-outlined">upload</span> Опубликовать
                 </button>
             </form>
         </section>
 
-        <!-- Создание администратора -->
+        <!-- Создать администратора / модератора -->
         <section class="admin-card" id="createAdminSection" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
             <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
-                <span class="material-symbols-outlined">person_add</span> Создать администратора
+                <span class="material-symbols-outlined">person_add</span> Создать аккаунт
             </h2>
             <form id="createAdminForm">
                 <div class="input-field">
                     <label for="newUsername">Логин</label>
-                    <input type="text" id="newUsername" placeholder="Логин нового админа" required>
+                    <input type="text" id="newUsername" placeholder="Логин нового пользователя" required>
                 </div>
                 <div class="input-field">
                     <label for="newPassword">Пароль</label>
@@ -86,14 +93,23 @@
                 <div class="input-field">
                     <label for="newRole">Ранг / Роль</label>
                     <select id="newRole" style="width: 100%; padding: 10px; border-radius: 8px; background: var(--md-sys-color-surface); color: inherit; border: 1px solid var(--md-sys-color-outline);">
-                        <option value="admin">Обычный Админ</option>
-                        <option value="main_admin">Главный Администратор</option>
+                        <option value="admin">Администратор</option>
+                        <option value="moderator">Модератор</option>
+                        <option value="slave">Раб</option>
                     </select>
                 </div>
                 <button type="submit" class="btn-download" style="margin-top: 12px; width: 100%; justify-content: center;">
                     <span class="material-symbols-outlined">verified_user</span> Создать аккаунт
                 </button>
             </form>
+        </section>
+
+        <!-- Управление пользователями / админами -->
+        <section class="admin-card" id="usersListSection" style="background: var(--md-sys-color-surface-container, #1e1e1e); padding: 20px; border-radius: 16px; margin-bottom: 24px;">
+            <h2 style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                <span class="material-symbols-outlined">group</span> Список администраторов и персонала
+            </h2>
+            <div id="adminsList">Загрузка пользователей...</div>
         </section>
 
         <!-- Управление модами -->
